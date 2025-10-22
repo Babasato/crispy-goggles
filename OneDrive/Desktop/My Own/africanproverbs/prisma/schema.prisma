@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Proverb {
+  id              String   @id @default(cuid())
+  text            String
+  translation     String
+  language        String
+  country         String
+  region          Region
+  meaning         String   @db.Text
+  culturalContext String?  @db.Text
+  themes          String[]
+  verified        Boolean  @default(true)
+  submittedBy     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  user            User?    @relation(fields: [submittedBy], references: [id])
+  
+  @@index([region])
+  @@index([country])
+  @@index([createdAt])
+}
+
+model Submission {
+  id              String   @id @default(cuid())
+  text            String
+  translation     String
+  language        String
+  country         String
+  region          Region
+  meaning         String   @db.Text
+  culturalContext String?  @db.Text
+  themes          String[]
+  status          Status   @default(PENDING)
+  submittedBy     String
+  createdAt       DateTime @default(now())
+  reviewedAt      DateTime?
+  
+  user            User     @relation(fields: [submittedBy], references: [id])
+  
+  @@index([status])
+  @@index([submittedBy])
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  password    String
+  name        String?
+  region      Region?
+  isAdmin     Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  
+  proverbs    Proverb[]
+  submissions Submission[]
+}
+
+enum Region {
+  EAST
+  WEST
+  SOUTH
+  NORTH
+  CENTRAL
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
