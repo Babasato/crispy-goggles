@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model EmailSubscription {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  language  String   @default("en")
+}
+
+model DailyUsage {
+  id        Int      @id @default(autoincrement())
+  ipAddress String
+  count     Int      @default(0)
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@unique([ipAddress, date])
+}
